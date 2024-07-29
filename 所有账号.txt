@@ -1,0 +1,76 @@
+本地后台网址：localhost:8080
+账号：admin
+密码：234@bcD@%^&
+
+生产测试环境后台地址：http://8.140.195.224:9080/index#
+api地址：http://8.140.195.224:9090
+账号：admin
+密码：123456
+
+生产环境后台网址：http://8.140.195.224:8080/user/login
+api地址：http://8.140.195.224:8090
+账号：admin
+密码：234@bcD@%^&
+
+境外发行系统登陆: http://52.4.230.180:8080/index#
+账号：admin
+密码：hncaee@1234
+
+境内发行系统postman二维码打包apk
+http://8.140.195.224:8090/partnership_app_api/api/user/test?phone=13996412062
+
+==================================================================
+Congratulations! Installed successfully!
+========================面板账户登录信息==========================
+境内发行系统服务器
+ 外网面板地址: http://8.140.195.224:39677/c01fd6b3
+ 内网面板地址: http://172.27.217.125:39677/c01fd6b3
+ username: qnjwfz9i
+ password: c8c4f1bc
+
+控制服务器： 8.140.195.224
+root NYDAEX@56%^
+
+FTP   NYDAEX	NYDAEX@56%^  21
+
+境外发行系统服务器			
+https://52.4.230.180:41519/e31c56f8（可用）
+账号：awxjiynw	
+密码：2e509023	
+
+我的前台手机号
+18632224662 钱包地址：0xdc5d366e8f592e8fd5e9c64dee18af9fbde1bdcb
+18722433725 钱包地址：
+15832353141 钱包地址：
+
+交易平台测试：http://182.92.176.60/
+账号：18622331765
+密码：123456
+
+交易平台测试后台：http://182.92.176.60:9576/#/home
+账号：root
+密码：123456
+
+交易平台生产：http://udaex.net/
+账号：18622331765
+密码：123456
+
+交易平台测试后台：http://udaex.net/:9576
+账号：root
+密码：123456
+
+合约地址：http://8.140.195.224:5000/#/home
+账号：admin
+密码：Abcde12345
+
+交易系统测试mongodb
+spring.data.mongodb.uri=mongodb://nydaexmongodb:28XLF7aZ8fNRrwFF@182.92.176.60:27017/nydaexmongodb
+spring.data.mongodb.database=nydaexmongodb
+
+交易系统生产mongodb
+spring.data.mongodb.uri=mongodb://nydaexmongodb:fGtrPKdE4f2KYtJy@34.224.155.72:27017/nydaexmongodb
+spring.data.mongodb.database=nydaexmongodb
+
+支付网址：https://console.adapay.tech/merconsole/login?redirect=%2Fdashboard
+账号：GBWH2088
+密码：gbwh2088
