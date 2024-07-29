@@ -1,0 +1,33 @@
+<template>
+	<div>
+		<swiper class="swiper" autoplay="true" >
+		    <swiper-item>
+				<video src="http://image.bxwhl.com/a06a738f-47a3-48f8-86ad-93c3c546e0a4.mp4" controls></video>
+		    </swiper-item>
+		    <swiper-item>
+				 <video src="http://image.bxwhl.com/a06a738f-47a3-48f8-86ad-93c3c546e0a4.mp4" controls></video>
+		    </swiper-item>
+		    <swiper-item>
+				<video src="http://image.bxwhl.com/a06a738f-47a3-48f8-86ad-93c3c546e0a4.mp4" controls></video>
+		    </swiper-item>
+		</swiper>
+	</div>
+</template>
+
+<script>
+	export default {
+		data(){
+			return{
+				list:[{url:"http://image.bxwhl.com/a06a738f-47a3-48f8-86ad-93c3c546e0a4.mp4"},
+				{url:"http://image.bxwhl.com/a06a738f-47a3-48f8-86ad-93c3c546e0a4.mp4"}],
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.swiper{
+		background-color: #c9161e;
+		height:750rpx;
+	}
+</style>

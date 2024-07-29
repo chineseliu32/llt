@@ -1,0 +1,12 @@
+/* eslint-disable */
+function isMulti(options) {
+  if (options == null || options[0] == null) {
+    return false;
+  }
+
+  return Array.isArray(options) && Array.isArray(options[0]);
+}
+
+module.exports = {
+  isMulti: isMulti
+};

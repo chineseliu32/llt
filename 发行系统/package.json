@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^4.2.2",
+    "@vant/weapp": "^1.11.4",
+    "echarts": "^5.5.1",
+    "fingerprintjs": "^0.5.3",
+    "html2canvas": "^1.4.1",
+    "mpvue-echarts": "^0.3.2",
+    "qrcode": "^1.5.3",
+    "qrcodejs2": "0.0.2",
+    "vue-clipboard2": "^0.3.3",
+    "vue-qr": "^4.0.9",
+    "vue-toastification": "^1.7.14"
+  }
+}

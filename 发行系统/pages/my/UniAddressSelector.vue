@@ -1,0 +1,113 @@
+<template>
+	<picker @change="bindPickerChange" @columnchange="columnchange" :range="array" range-key="name" :value="value"
+		mode="multiSelector">
+		<slot></slot>
+	</picker>
+
+</template>
+
+<script>
+	import cityData from '@/utils/cityData.js'
+	let selectVal = ['', '']
+
+	export default {
+		data() {
+			return {
+				code: [0, 0],
+				value: [0, 0],
+				array: [],
+				index: 0
+			}
+		},
+		created() {
+			this.initSelect()
+		},
+		methods: {
+			// 初始化地址选项
+			initSelect() {
+				this.updateSourceDate() // 更新源数据
+					.updateAddressDate() // 更新结果数据
+					.$forceUpdate() // 触发双向绑定
+			},
+			// 地址控件改变控件
+			columnchange(d) {
+				this.updateSelectIndex(d.detail.column, d.detail.value) // 更新选择索引
+					.updateSourceDate() // 更新源数据
+					.updateAddressDate() // 更新结果数据
+					.$forceUpdate() // 触发双向绑定
+			},
+
+			/**
+			 * 更新源数据
+			 * */
+			updateSourceDate() {
+				this.array = [];
+				this.array[0] = cityData.map(obj => {
+					return {
+						name: obj.name,
+						value: obj.value
+					};
+				});
+
+				if (this.value[0] !== undefined) {
+					this.array[1] = cityData[this.value[0]].citie.map(obj => {
+						return {
+							name: obj.name,
+							value: obj.value
+						};
+					});
+				}
+				//县级
+				// this.array[2] = cityData[this.value[0]].city[this.value[1]].area.map(obj => { 
+				//     return {
+				//         name: obj
+				//     }
+				// })
+				return this
+			},
+
+			/**
+			 * 更新索引
+			 * */
+			updateSelectIndex(column, value) {
+				let arr = JSON.parse(JSON.stringify(this.value))
+				arr[column] = value
+				if (column === 0) {
+					arr[1] = 0
+					// arr[2] = 0
+				}
+				if (column === 1) {
+					// arr[2] = 0
+				}
+				this.value = arr
+				return this
+			},
+
+			/**
+			 * 更新结果数据 
+			 * */
+			updateAddressDate() {
+				selectVal[0] = this.array[0][this.value[0]].name
+				selectVal[1] = this.array[1][this.value[1]].name
+				this.code[0] =  this.array[0][this.value[0]].value
+				this.code[1] =  this.array[1][this.value[1]].value
+				// selectVal[2] = this.array[2][this.value[2]].name 
+				return this
+			},
+
+			/**
+			 * 点击确定
+			 * */
+			bindPickerChange(e) {
+				this.$emit('change', {
+					index: this.code,
+					data: selectVal
+				})
+				return this
+			}
+		}
+	}
+</script>
+
+<style>
+</style>

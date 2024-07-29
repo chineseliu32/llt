@@ -1,0 +1,357 @@
+<template>
+	<view>
+		<!-- <view class="nav"></view> -->
+		<view class="box" :style="{height: 2*height + 'px'}">
+			<live-pusher :beauty="beauty" :style="{height: 2*height + 'px'}" id="livePusher" class="livePusher":url="url" mode="FHD"></live-pusher>
+			<!-- 这里填写直播信息 -->
+			<view class="newbox" v-if="flag">
+					<input type="text" name="nickname" placeholder="请输入直播者姓名" class="text" v-model="name"/>
+					<input type="text" name="title" placeholder="请输入直播主题" class="text" v-model="title"/>
+					<view class="submit" @click="livefn"><text class="btn">开启直播</text></view>
+					<text class="ptitle" >直播过程中切勿离开此页面，可能导致不能正常观看</text>
+			</view>
+			<!-- 这是功能按钮 --> 
+			<view class="but">
+					<view @click="openmeiyan" class="meiyanbut">
+						<image class="but-img"  src="../../static/selecr-my.png"></image>
+					</view>
+					<view @click="switchCamera" class="meiyanbut">
+						<image class="but-img" src="../../static/select-chang.png"></image>
+					</view>
+					<view @click="navback" class="meiyanbut">
+						<image class="but-img"  src="../../static/back.png"></image>  
+					</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import {live,backlive,livelist} from"@/api/user.js";
+	import request from"@/utils/request.js";
+	import dokey from '@/js_sdk/ccdzhang-dokey/dokey.js';
+	import md5 from '@/js_sdk/ccdzhang-dokey/md5.js';
+	export default {
+		data() {
+			return {
+				type:"",
+				scrollTop:0,
+				Camera: true,
+				width: '',
+				height: '',
+				accountNum: '',
+				scrollTops:0,
+				url: '',//这是推流地址
+				enableCamera: false,
+				context: null,
+				markact: true,
+				arr: [],
+				livegood:[],
+				allgood:[],
+				chatList:[{content:'',member:{realname:''}}],
+				beauty: 9,
+				interval: '',
+				intervals: '',
+				flag:true,
+				name:"",
+				title:""
+			};
+		},
+		onLoad() {
+			let res = uni.getSystemInfoSync();
+			// console.log(res)
+			this.width = res.windowWidth;
+			this.height = res.windowHeight+100;
+		},
+
+		onReady() {
+			this.context = uni.createLivePusherContext('livePusher', this);
+			// var secretdate= 'e1c9dc6dbe056ee85151157726d61d2c';
+			// let date = Date.parse(new Date())/1000 + 21600;  
+			// this.url = 'rtmp://116940.livepush.myqcloud.com/live/'+(uni.getStorageSync("userNum").id)+'.flv?txSecret='+md5(secretdate+(uni.getStorageSync("userNum").id)+date.toString(16).toUpperCase())+'&txTime='+date.toString(16).toUpperCase();
+			var secretdate= '255307bc27858476a69230e35384e3c6';
+			let date = Date.parse(new Date())/1000 + 21600;  
+			this.url = 'http://live.sigequanwangluokeji.com/live/'+(uni.getStorageSync("userNum").id)+'.flv?txSecret='+md5(secretdate+(uni.getStorageSync("userNum").id)+date.toString(16).toUpperCase())+'&txTime='+date.toString(16).toUpperCase();
+		},
+		
+		// 监听返回按钮
+		onBackPress(e) {
+		if (e.from == 'backbutton') {
+		    uni.showModal({
+		        title: '提示',
+		        content: '是否退出直播',
+		        success:(res)=> {
+					plus.navigator.setFullscreen(false);
+		            if (res.confirm) {
+						this.stopLive()
+						this.tobacklive()
+		              uni.navigateBack({
+		                  delta: 1
+		              });
+		            } else if (res.cancel) {
+		               return true; //阻止默认返回行为
+		            }
+		           
+		        }
+		    });
+		   return true; //阻止默认返回行为
+		}
+		}, 
+		 onShow() {
+			 // 去除顶部状态栏
+			 plus.navigator.setFullscreen(true);
+			 // 保持屏幕常亮
+			 uni.setKeepScreenOn({
+			    keepScreenOn: true,
+			 	success:(e)=>{
+					console.log(e)
+			 		uni.showToast({
+			 			title:"屏幕常亮开启成功"
+			 		})
+			 	}
+			 });
+			 if(this.flag==false){
+				this.tolive() 
+			 }
+			// setTimeout(() => {
+			// 	uni.showToast({
+			// 		title:"直播开启中...",
+			// 		icon:"none",
+			// 		duration:2000
+			// 	})
+			// 	this.startLive();
+			// }, 1000)
+		 },
+		onUnload(){
+			plus.navigator.setFullscreen(false);
+			// console.log("页面卸载了")
+		},
+		onHide(){
+			console.log("页面隐藏了")
+			plus.navigator.setFullscreen(false);
+			this.tobacklive()
+			// 停止推流
+			this.stopLive()
+		},
+		methods: { 
+			// 发起直播
+			livefn(){
+				if(this.name==""){
+					uni.showToast({
+						title:"直播者未填写",
+						icon:"none",
+						duration:1500
+					})
+					return
+				}
+				if(this.title==""){
+					uni.showToast({
+						title:"直播主题未填写",
+						icon:"none",
+						duration:1500
+					})
+					return
+				}
+				this.tolive()
+			},
+			// 主播上线
+			tolive(){
+				let data1={userId:parseInt(uni.getStorageSync("userNum").id),
+				name:this.name,
+				title:this.title
+				}
+				request.get(live,data1).then(res=>{
+					if(res.code==0){
+						this.flag=false
+						setTimeout(() => {
+							uni.showToast({
+								title:"直播开启中...",
+								icon:"none",
+								duration:2000
+							})
+							this.startLive();
+						}, 1000)
+					}else{
+						uni.showToast({
+							title:"直播开启失败",
+							icon:"none",
+							duration:2000
+						})
+					}
+					console.log("视频直播",res)
+				})
+			},
+			// 主播下线
+			tobacklive(){
+				let data1={userId:parseInt(uni.getStorageSync("userNum").id)}
+				request.get(backlive,data1).then(res=>{
+					console.log("视频下线",res)
+				})
+			},
+			navback(){
+				uni.showModal({
+				    title: '提示',
+				    content: '是否退出直播',
+				    success: (res)=> {
+						plus.navigator.setFullscreen(false);
+				        if (res.confirm) {
+							this.tobacklive()
+							this.stopLive()
+				          uni.navigateBack({
+				              delta: 1 
+				          });
+				        } else if (res.cancel) {
+				        }
+				       
+				    }
+				});
+			},
+			//打开美颜
+			openmeiyan() {
+				// this.$refs.popup.open()
+				if (this.beauty == 0) {
+					this.beauty = 5
+				} else {
+					this.beauty = 0
+				}
+			},
+			EnableCamera() {
+				this.enableCamera = true
+			},
+			 onBackPress(options) {  
+            if (options.from === 'navigateBack') {  
+                return false;  
+            }  
+            this.back();  
+            return true;  
+        },  
+			//开始推流
+			startLive() {
+				let self = this;
+				this.context.start({
+					success: a => { 
+						console.log("livePusher.start:" + JSON.stringify(a));
+						this.markact = false;
+					},
+					fail: a =>{
+						
+					}
+				})
+				
+			},
+			// 暂停推流
+			pause(){
+			    this.context.pause({
+			        success: (a) => {
+						console.log("暂停推流成功")
+			            // console.log("livePusher.pause:" + JSON.stringify(a));
+			        }
+			    });
+			},
+			// 停止推流
+			stopLive() {
+				this.context.stop({
+					success: a => {
+						
+					}
+				})
+			},
+			//转化摄像头
+			switchCamera() {
+				this.context.switchCamera({
+					success: (a) => {
+						this.Camera = !this.Camera;
+					}
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.btn{
+		font-size: 30upx;
+		color: #FFFFFF;
+	}
+	.ptitle{
+		font-size: 30upx;
+		padding:  0 20upx;
+		margin-top:80rpx ;
+	}
+	.text{
+		width: 500rpx;
+		height: 80rpx;
+		margin-left: 50rpx;
+		font-size: 30rpx;
+		border-radius: 5rpx;
+		margin-top: 40rpx;
+		/* border-style: 1px #999 solid; */
+		border-width: 1px;
+		border-color: #999;
+		border-radius: 6upx;
+		padding-left: 10rpx;
+	}
+	.submit{
+		width: 500rpx;
+		height: 80rpx;
+		margin-left: 50rpx;
+		border-radius: 5rpx;
+		align-items: center;
+		justify-content: center;
+		background-color:#c9161e;
+		margin-top: 80rpx;
+		color: #FFFFFF;
+	}
+	.newbox{
+		width: 600rpx;
+		height: 600rpx;
+		position: fixed;
+		top:200rpx;
+		left: 75rpx;
+		border-radius: 10rpx;
+		background-color: #fff;
+		
+	}
+	.box{
+		position: fixed;
+		/* top: 48rpx; */
+		width: 750rpx;
+	}
+	.livePusher{
+		width: 750rpx;
+		/* height: 1000rpx; */
+	}
+	.nav{
+		width: 750rpx;
+		height: 48rpx;
+	}
+	
+	.meiyanbut {
+	
+		height: 80rpx;
+		width: 80rpx;
+		flex-direction:row;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		background-color: rgba(0,0,0,0.2);
+		text-align: center;
+		margin: 40 40rpx;
+		
+	}
+	.but-img {
+		width: 60rpx;
+		height: 60rpx;
+	}
+	
+	.but {
+		width: 80rpx;
+		height: 400rpx;
+		position: fixed;
+		right:40rpx;
+		bottom: 40rpx;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

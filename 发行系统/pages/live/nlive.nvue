@@ -1,0 +1,173 @@
+<template>
+	<scroll-view class="page" :style="[windowHeight ? {height: windowHeight + 'px'} : '']" scroll-y="true">
+    
+    <text class="page-title">多人房间: {{roomId}}</text>
+    
+		<view class="liveroom">
+
+      <view class="liveroom-cel liveroom-pusher">
+        <TX-PlayView class="liveroom-trtc" ref="maxTxPlayView" 
+          :appId="appId"
+		  :appKey="appKey"
+          :roomId="roomId"
+          :userId="userName"
+        	enableLocalAudio=true
+        	@statechange="onPush"
+        ></TX-PlayView>
+
+        <text class="liveroom-cel-name">我</text>
+      </view>
+
+      <view class="liveroom-cel liveroom-player" v-for="(item, index) in players" :key="index">
+        <TX-PlayView class="liveroom-trtc" :ref="'remoteUser' + item.userId" 
+          ></TX-PlayView>
+
+        <text class="liveroom-cel-name">{{item.userId}}</text>
+      </view>
+
+    </view>
+
+	</scroll-view>
+</template>
+
+<script>
+	// import { appId, appKey } from '@/common/app.js';
+	const trtcCloud = uni.requireNativePlugin('TX-TRTCCloud');
+  
+export default {
+  data() {
+    return {
+      windowHeight: 0,
+      roomId: 868,
+      userName: "aa",
+      players: [],
+	  appId:appId,
+	  appKey:appKey
+    }
+  },
+  
+  onLoad() {
+	  
+    this.userName = plus.device.uuid;
+    this.windowHeight = 667
+  },
+  
+  onReady() {
+    this.join();
+  },
+  
+  onResize() {
+    // #ifdef APP-PLUS-NVUE
+    this.resizeWinHeight()
+    // #endif
+  },
+  
+  onNavigationBarButtonTap() {
+  	uni.navigateBack({
+  	    delta: 1,
+  	    animationType: 'pop-out',
+  	    animationDuration: 200
+  	});
+  },
+  
+  onBackPress() {
+  	this.$refs.maxTxPlayView.leaveRoom();
+  },
+  
+  methods: {
+  
+    join(){
+       //主要步骤如下：
+       //1. 开启本地视频的预览画面，并开启声音
+       this.$refs.maxTxPlayView.joinRoom();
+    },
+    
+    onPush(e){
+        let result = e.detail
+
+        switch (result.type) {
+          case 'onFirstVideoFrame':
+            console.log('onFirstVideoFrame');
+            break;
+
+          case 'onUserVideoAvailable':
+            break;
+
+          case 'onUserEnter':
+            if (result.userId) this.addPlayer(result.userId)
+            break;
+
+          case 'onUserExit':
+            if (result.userId) this.removePlayer(result.userId)
+            break;
+        }
+    },
+    
+    addPlayer(userId) {
+      this.players.push({
+        userId: userId
+      })
+    },
+    
+    removePlayer(userId) {
+      for (let i = 0; i < this.players.length; i++) {
+        let d = this.players[i]
+        if (d.userId === userId) {
+          this.players.splice(i, 1)
+          break
+        }
+      }
+    },
+    
+    resizeWinHeight() {
+      uni.getSystemInfo({
+        success: (res) => {
+          this.windowHeight = res.windowHeight
+        }
+      });
+    },
+  }
+}
+</script>
+
+<style lang="scss">
+.page {
+  height: 100%;
+  background-color: #271506;
+}
+.page-title {
+  width: 750rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  color: #fff;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.liveroom {
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  width: 750rpx;
+}
+$cel-width: 0.5 * 750rpx;
+.liveroom-cel {
+  width: $cel-width;
+  height: 1.382 * $cel-width + 40rpx;
+  padding: 20rpx;
+}
+.liveroom-trtc {
+  width: $cel-width - 40rpx;
+  height: 1.382 * $cel-width - 40rpx;
+  background-color: #444;
+}
+
+.liveroom-cel-name {
+  width: $cel-width - 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
+}
+</style>
